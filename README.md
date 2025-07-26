@@ -1,16 +1,23 @@
-# MoviList 
+# MoviList API
 
-MoviList is a simple web app to track movies and TV shows you've watched, plan to watch, or are currently watching. This was inspired by AniList, but for film and TV.
+MoviList is a simple web app to track movies and TV shows you've watched, plan to watch, or are currently watching. Inspired by AniList, but for film and TV.
+
+This repository (`movilist-api`) contains the backend REST API, built with Go. The frontend lives in a separate repo: [`movilist-web`](https://github.com/you/movilist-web).
+
+## Why Separate Repos?
+
+- Easier deployment (Heroku for API, Vercel for web)
+- Simpler CI/CD and maintenance
+- Scalable for future features and contributors
 
 ## Tech Stack
 
 - **Backend:** Golang REST API
-- **Frontend:** Next.js (React)
 
 ## Hosting Plans
 
-- **Frontend:** Vercel
-- **Backend:** Heroku
+- **Backend (Development):** Local self-tunneling (e.g., zrok.io)
+- **Backend (Production):** Heroku
 
 ## Project Goal
 
