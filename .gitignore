@@ -16,10 +16,6 @@
 go.work
 go.work.sum
 
-# Module cache
-*.mod
-*.sum
-
 # Editor-specific
 .idea/
 .vscode/

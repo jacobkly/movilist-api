@@ -2,5 +2,7 @@ services:
 
   app:
     build: .
+    env_file: .env.dev
     ports:
       - "8080:8080"
+    command: [ "sh", "-c", "/movilist-api/bin/migrate up && /movilist-api/bin/api" ]

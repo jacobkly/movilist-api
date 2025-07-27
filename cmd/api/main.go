@@ -1,25 +1,29 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"time"
+
+	"movilist-api/config"
 )
 
 func main() {
+	c := config.New()
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", hello)
 
 	s := &http.Server{
-		Addr:         "0.0.0.0:8080",
+		Addr:         fmt.Sprintf("0.0.0.0:%d", c.Server.Port),
 		Handler:      mux,
-		ReadTimeout:  2 * time.Second,
-		WriteTimeout: 2 * time.Second,
-		IdleTimeout:  5 * time.Second,
+		ReadTimeout:  c.Server.TimeoutRead,
+		WriteTimeout: c.Server.TimeoutWrite,
+		IdleTimeout:  c.Server.TimeoutIdle,
 	}
 
-	log.Println("Starting server 0.0.0.0:8080")
+	log.Println("Starting server " + s.Addr)
 	if err := s.ListenAndServe(); err != nil && nil != http.ErrServerClosed {
 		log.Fatal("Server startup failed")
 	}

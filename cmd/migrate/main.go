@@ -1,14 +1,21 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	"github.com/pressly/goose/v3"
+
+	"movilist-api/config"
+)
+
+const (
+	dialect     = "pgx"
+	fmtDBString = "host=%s user=%s password=%s dbname=%s port=%d sslmode=%s"
 )
 
 var (
@@ -16,15 +23,10 @@ var (
 	dir   = flags.String("dir", "migrations", "directory with migration files")
 )
 
-func getDBString() string {
-	host := os.Getenv("SUPABASE_HOST")
-	user := os.Getenv("SUPABASE_USER")
-	password := os.Getenv("SUPABASE_PASSWORD")
-	dbname := os.Getenv("SUPABASE_DB_NAME")
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=requre", host, user, password, dbname)
-}
-
 func main() {
+	// used to run migrations locally w/o docker
+	_ = godotenv.Load(".env.dev")
+
 	flags.Usage = usage
 	flags.Parse(os.Args[1:])
 
@@ -36,8 +38,10 @@ func main() {
 
 	command := args[0]
 
-	dbString := getDBString()
-	db, err := goose.OpenDBWithDriver("pgx", dbString)
+	c := config.NewDB()
+	dbString := fmt.Sprintf(fmtDBString, c.Host, c.Username, c.Password, c.DBName, c.Port, c.SSLMode)
+
+	db, err := goose.OpenDBWithDriver(dialect, dbString)
 	if err != nil {
 		log.Fatalf("%s", err.Error())
 	}
@@ -48,7 +52,7 @@ func main() {
 		}
 	}()
 
-	if err := goose.RunContext(context.Background(), command, db, *dir, args[1:]...); err != nil {
+	if err := goose.Run(command, db, *dir, args[1:]...); err != nil {
 		log.Fatalf("migrate %v: %v", command, err)
 	}
 }
