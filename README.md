@@ -12,7 +12,13 @@ This repository (`movilist-api`) contains the backend REST API, built with Go. T
 
 ## Tech Stack
 
-- **Backend:** Golang REST API
+- **Backend:** [Golang](https://go.dev/) REST API  
+- **Database:** [Supabase](https://supabase.com/) (PostgreSQL)  
+- **Authentication:** Supabase Auth  
+- **Storage:** Supabase Buckets (for user-uploaded content)  
+- **3rd-Party API:** [TMDB](https://www.themoviedb.org/?language=en-US) (The Movie Database) API 
+- **Migrations:** [Goose](https://github.com/pressly/goose) for database schema management  
+
 
 ## Hosting Plans
 
