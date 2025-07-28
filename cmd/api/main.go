@@ -2,22 +2,32 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"log"
 	"net/http"
 
+	"movilist-api/cmd/api/router"
 	"movilist-api/config"
 )
 
+//  @title          MoviList API
+//  @version        1.0
+//  @description    A RESTful API for managing movies, shows, and user media lists.
+//                  Inspired by AniList, but focused on film and TV.
+
+//  @contact.name   Jacob Klymenko
+//  @contact.url    https://github.com/jacobkly
+
+//  @license.name   MIT License
+//  @license.url    https://opensource.org/licenses/MIT
+
+// @host           localhost:8080
+// @BasePath       /v1
 func main() {
 	c := config.New()
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", hello)
-
+	r := router.New()
 	s := &http.Server{
 		Addr:         fmt.Sprintf("0.0.0.0:%d", c.Server.Port),
-		Handler:      mux,
+		Handler:      r,
 		ReadTimeout:  c.Server.TimeoutRead,
 		WriteTimeout: c.Server.TimeoutWrite,
 		IdleTimeout:  c.Server.TimeoutIdle,
@@ -27,8 +37,4 @@ func main() {
 	if err := s.ListenAndServe(); err != nil && nil != http.ErrServerClosed {
 		log.Fatal("Server startup failed")
 	}
-}
-
-func hello(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Hello world!")
 }
