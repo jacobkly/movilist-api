@@ -1,0 +1,3 @@
+package collections
+
+func model() {}

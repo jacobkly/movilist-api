@@ -3,8 +3,8 @@ package router
 import (
 	"github.com/go-chi/chi/v5"
 
-	"movilist-api/cmd/api/resource/health"
-	"movilist-api/cmd/api/resource/media"
+	"movilist-api/internal/api/resource/health"
+	"movilist-api/internal/api/resource/media"
 )
 
 func New() *chi.Mux {

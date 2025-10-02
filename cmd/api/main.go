@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"movilist-api/cmd/api/router"
 	"movilist-api/config"
+	"movilist-api/internal/api/router"
 )
 
 //  @title          MoviList API

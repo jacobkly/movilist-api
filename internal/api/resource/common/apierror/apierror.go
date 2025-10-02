@@ -1,4 +1,4 @@
-package err
+package apierror
 
 type Error struct {
 	Error string `json:"error"`
