@@ -10,6 +10,7 @@ import (
 type Conf struct {
 	Server ConfServer
 	DB     ConfDB
+	TMDB   ConfTMDB
 }
 
 type ConfServer struct {
@@ -30,6 +31,10 @@ type ConfDB struct {
 	Debug    bool   `env:"DB_DEBUG,required"`
 }
 
+type ConfTMDB struct {
+	APIKey string `env:"TMDB_API_KEY,requred"`
+}
+
 func New() *Conf {
 	var c Conf
 	if err := envdecode.StrictDecode(&c); err != nil {
@@ -45,5 +50,13 @@ func NewDB() *ConfDB {
 		log.Fatalf("Failed to decode: %s", err)
 	}
 
+	return &c
+}
+
+func NewTMDB() *ConfTMDB {
+	var c ConfTMDB
+	if err := envdecode.StrictDecode(&c); err != nil {
+		log.Fatalf("Failed to decode: %s", err)
+	}
 	return &c
 }

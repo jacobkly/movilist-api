@@ -3,8 +3,10 @@ package router
 import (
 	"github.com/go-chi/chi/v5"
 
+	"movilist-api/config"
 	"movilist-api/internal/api/resource/health"
-	"movilist-api/internal/api/resource/media"
+	"movilist-api/internal/api/resource/movies"
+	"movilist-api/pkg/tmdb"
 )
 
 func New() *chi.Mux {
@@ -12,13 +14,16 @@ func New() *chi.Mux {
 
 	r.Get("/livez", health.Get)
 
+	c := config.NewTMDB()
+	tmdbClient := tmdb.NewClient(c.APIKey)
+
 	r.Route("/v1", func(r chi.Router) {
-		mediaAPI := &media.API{}
-		r.Get("/media", mediaAPI.List)
-		r.Post("/media", mediaAPI.Create)
-		r.Get("/media/{id}", mediaAPI.Get)
-		r.Put("/media/{id}", mediaAPI.Update)
-		r.Delete("/media/{id}", mediaAPI.Delete)
+		movieService := movies.NewService(tmdbClient)
+		movieAPI := movies.NewAPI(movieService)
+
+		r.Route("/movies", func(r chi.Router) {
+			r.Get("/{id}", movieAPI.GetMovie)
+		})
 	})
 
 	return r
