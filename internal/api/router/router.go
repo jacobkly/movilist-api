@@ -13,7 +13,7 @@ import (
 func New() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Get("/livez", health.Get)
+	r.Get("/health", health.Get)
 
 	c := config.NewTMDB()
 	tmdbClient := tmdb.NewClient(c.APIKey)
