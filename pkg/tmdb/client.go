@@ -5,22 +5,30 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 )
 
 type Client struct {
-	apiKey string
-	http   *http.Client
+	apiKey  string
+	baseURL string
+	http    *http.Client
 }
 
 func NewClient(apiKey string) *Client {
+	baseURL := os.Getenv("TMDB_BASE_URL")
+	if baseURL == "" {
+		baseURL = "https://api.themoviedb.org/3"
+	}
+
 	return &Client{
-		apiKey: apiKey,
-		http:   &http.Client{Timeout: 10 * time.Second},
+		apiKey:  apiKey,
+		baseURL: baseURL,
+		http:    &http.Client{Timeout: 10 * time.Second},
 	}
 }
 
-func (c *Client) TMDBRequest(method, url string, body interface{}) (map[string]interface{}, error) {
+func (c *Client) TMDBRequest(method, endpoint string, body interface{}) (map[string]interface{}, error) {
 	var reqBodyReader *bytes.Reader
 	if body != nil {
 		b, err := json.Marshal(body)
@@ -32,6 +40,7 @@ func (c *Client) TMDBRequest(method, url string, body interface{}) (map[string]i
 		reqBodyReader = bytes.NewReader(nil)
 	}
 
+	url := fmt.Sprintf("%s%s", c.baseURL, endpoint)
 	req, err := http.NewRequest(method, url, reqBodyReader)
 	if err != nil {
 		return nil, err

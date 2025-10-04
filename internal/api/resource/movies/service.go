@@ -14,11 +14,64 @@ func NewService(client *tmdb.Client) *Service {
 }
 
 func (s *Service) GetMovieById(id int) (interface{}, error) {
-	url := fmt.Sprintf("https://api.themoviedb.org/3/movie/%d?language=en-US", id)
-	tmdbMovie, err := s.client.TMDBRequest("GET", url, nil)
+	endpoint := fmt.Sprintf("/movie/%d?language=en-US", id)
+	movie, err := s.client.TMDBRequest("GET", endpoint, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	return tmdbMovie, nil
+	return movie, nil
+}
+
+func (s *Service) GetMovieRecommendations(id int) (interface{}, error) {
+	endpoint := fmt.Sprintf("/movie/%d/recommendations?language=en-US&page=1", id)
+	recommendations, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return recommendations, nil
+}
+
+// by weekly status
+func (s *Service) GetTrendingMovies() (interface{}, error) {
+	endpoint := "/trending/movie/week?language=en-US"
+	trending, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return trending, nil
+}
+
+func (s *Service) GetUpcomingMovies() (interface{}, error) {
+	endpoint := "/movie/upcoming?language=en-US&page=1"
+	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return upcoming, nil
+}
+
+// by popularity
+func (s *Service) GetPopularMovies() (interface{}, error) {
+	endpoint := "/movie/popular?language=en-US&page=1"
+	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return upcoming, nil
+}
+
+// by average score
+func (s *Service) GetTopRatedMovies() (interface{}, error) {
+	endpoint := "/movie/top_rated?language=en-US&page=1"
+	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return upcoming, nil
 }
