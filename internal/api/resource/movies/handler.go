@@ -120,3 +120,17 @@ func (a *API) GetTopRatedMovies(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(trending)
 }
+
+func (a *API) GetMovieList(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	listType := query.Get("type")
+
+	data, err := a.service.GetMovieList(listType)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}

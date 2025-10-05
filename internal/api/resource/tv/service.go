@@ -66,46 +66,21 @@ func (s *Service) GetTvCollection(idType string, id int) (interface{}, error) {
 	return seasons, nil
 }
 
-// by weekly status
-func (s *Service) GetTrendingTv() (interface{}, error) {
-	endpoint := "/trending/tv/week?language=en-US"
-	trending, err := s.client.TMDBRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
+func (s *Service) GetTvList(listType string) (interface{}, error) {
+	var endpoint string
+
+	switch listType {
+	case "trending":
+		endpoint = "/trending/tv/week?language=en-US" // by weekly status
+	case "upcoming":
+		endpoint = "/tv/on_the_air?language=en-US&page=1"
+	case "popular":
+		endpoint = "/tv/popular?language=en-US&page=1"
+	case "top_rated":
+		endpoint = "/tv/top_rated?language=en-US&page=1"
+	default:
+		return nil, fmt.Errorf("invalid list type")
 	}
 
-	return trending, nil
-}
-
-// tv that air in the next 7 days
-func (s *Service) GetUpcomingTv() (interface{}, error) {
-	endpoint := "/tv/on_the_air?language=en-US&page=1"
-	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return upcoming, nil
-}
-
-// by popularity
-func (s *Service) GetPopularTv() (interface{}, error) {
-	endpoint := "/tv/popular?language=en-US&page=1"
-	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return upcoming, nil
-}
-
-// by average score
-func (s *Service) GetTopRatedTv() (interface{}, error) {
-	endpoint := "/tv/top_rated?language=en-US&page=1"
-	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return upcoming, nil
+	return s.client.TMDBRequest("GET", endpoint, nil)
 }

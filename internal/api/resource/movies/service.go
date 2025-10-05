@@ -101,3 +101,22 @@ func (s *Service) GetTopRatedMovies() (interface{}, error) {
 
 	return upcoming, nil
 }
+
+func (s *Service) GetMovieList(listType string) (interface{}, error) {
+	var endpoint string
+
+	switch listType {
+	case "trending":
+		endpoint = "/trending/movie/week?language=en-US" // by weekly status
+	case "upcoming":
+		endpoint = "/movie/upcoming?language=en-US&page=1"
+	case "popular":
+		endpoint = "/movie/popular?language=en-US&page=1"
+	case "top_rated":
+		endpoint = "/movie/top_rated?language=en-US&page=1"
+	default:
+		return nil, fmt.Errorf("invalid list type")
+	}
+
+	return s.client.TMDBRequest("GET", endpoint, nil)
+}

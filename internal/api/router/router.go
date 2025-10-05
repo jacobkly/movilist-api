@@ -27,10 +27,7 @@ func New() *chi.Mux {
 			r.Get("/{id}", movieAPI.GetMovieById)
 			r.Get("/{id}/recommendations", movieAPI.GetMovieRecommendations)
 			r.Get("/{id}/collection", movieAPI.GetMovieCollection)
-			r.Get("/trending", movieAPI.GetTrendingMovies)
-			r.Get("/upcoming", movieAPI.GetUpcomingMovies)
-			r.Get("/popular", movieAPI.GetPopularMovies)
-			r.Get("/top-rated", movieAPI.GetTopRatedMovies)
+			r.Get("/", movieAPI.GetMovieList)
 		})
 
 		tvService := tv.NewService(tmdbClient)
@@ -40,10 +37,7 @@ func New() *chi.Mux {
 			r.Get("/{id}", tvAPI.GetTvById)
 			r.Get("/{id}/recommendations", tvAPI.GetTvRecommendations)
 			r.Get("/{id}/collection", tvAPI.GetTvCollection)
-			r.Get("/trending", tvAPI.GetTrendingTv)
-			r.Get("/upcoming", tvAPI.GetUpcomingTv)
-			r.Get("/popular", tvAPI.GetPopularTv)
-			r.Get("/top-rated", tvAPI.GetTopRatedTv)
+			r.Get("/", tvAPI.GetTvList)
 		})
 
 		searchService := search.NewService(tmdbClient)

@@ -109,46 +109,16 @@ func (a *API) GetTvCollection(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(collection)
 }
 
-func (a *API) GetTrendingTv(w http.ResponseWriter, r *http.Request) {
-	trending, err := a.service.GetTrendingTv()
+func (a *API) GetTvList(w http.ResponseWriter, r *http.Request) {
+	query := r.URL.Query()
+	listType := query.Get("type")
+
+	data, err := a.service.GetTvList(listType)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(trending)
-}
-
-func (a *API) GetUpcomingTv(w http.ResponseWriter, r *http.Request) {
-	trending, err := a.service.GetUpcomingTv()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(trending)
-}
-
-func (a *API) GetPopularTv(w http.ResponseWriter, r *http.Request) {
-	trending, err := a.service.GetPopularTv()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(trending)
-}
-
-func (a *API) GetTopRatedTv(w http.ResponseWriter, r *http.Request) {
-	trending, err := a.service.GetTopRatedTv()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(trending)
+	json.NewEncoder(w).Encode(data)
 }
