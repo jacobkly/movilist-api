@@ -25,7 +25,8 @@ func (a *API) GetTvById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := r.URL.Query()
-	idType := query.Get("id_type")
+	idType := query.Get("type")
+	// TODO: can do enum check for the id type
 	seasonNum := 0
 
 	/*
@@ -72,7 +73,8 @@ func (a *API) GetTvRecommendations(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := r.URL.Query()
-	idType := query.Get("id_type")
+	idType := query.Get("type")
+	// TODO: can do enum check for the id type
 
 	recommendations, err := a.service.GetTvRecommendations(idType, id)
 	if err != nil {

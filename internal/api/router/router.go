@@ -6,6 +6,7 @@ import (
 	"movilist-api/config"
 	"movilist-api/internal/api/resource/health"
 	"movilist-api/internal/api/resource/movies"
+	"movilist-api/internal/api/resource/search"
 	"movilist-api/internal/api/resource/tv"
 	"movilist-api/pkg/tmdb"
 )
@@ -42,6 +43,11 @@ func New() *chi.Mux {
 			r.Get("/popular", tvAPI.GetPopularTv)
 			r.Get("/top-rated", tvAPI.GetTopRatedTv)
 		})
+
+		searchService := search.NewService(tmdbClient)
+		searchAPI := search.NewAPI(searchService)
+
+		r.Get("/search", searchAPI.GetSearchResult)
 	})
 
 	return r
