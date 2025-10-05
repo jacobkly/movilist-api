@@ -86,6 +86,29 @@ func (a *API) GetTvRecommendations(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(recommendations)
 }
 
+// as a collection for tv, this simply returns all the seasons related to the id given
+func (a *API) GetTvCollection(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid tv id", http.StatusBadRequest)
+		return
+	}
+
+	query := r.URL.Query()
+	idType := query.Get("type")
+	// TODO: can do enum check for the id type
+
+	collection, err := a.service.GetTvCollection(idType, id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(collection)
+}
+
 func (a *API) GetTrendingTv(w http.ResponseWriter, r *http.Request) {
 	trending, err := a.service.GetTrendingTv()
 	if err != nil {

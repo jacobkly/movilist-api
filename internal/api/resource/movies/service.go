@@ -33,6 +33,32 @@ func (s *Service) GetMovieRecommendations(id int) (interface{}, error) {
 	return recommendations, nil
 }
 
+func (s *Service) GetMovieCollection(id int) (interface{}, error) {
+	endpoint := fmt.Sprintf("/movie/%d?language=en-US", id)
+	movie, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	belongsTo, ok := movie["belongs_to_collection"].(map[string]interface{})
+	if !ok || belongsTo == nil {
+		return nil, nil
+	}
+
+	collectionID, ok := belongsTo["id"].(float64)
+	if !ok {
+		return nil, fmt.Errorf("invalid collection ID format")
+	}
+
+	endpoint = fmt.Sprintf("/collection/%d?language=en-US", int(collectionID))
+	collection, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return collection, nil
+}
+
 // by weekly status
 func (s *Service) GetTrendingMovies() (interface{}, error) {
 	endpoint := "/trending/movie/week?language=en-US"

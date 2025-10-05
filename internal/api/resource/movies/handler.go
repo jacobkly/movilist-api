@@ -52,6 +52,31 @@ func (a *API) GetMovieRecommendations(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(recommendations)
 }
 
+// as a collection for movies, it uses the collection system by TMDb
+func (a *API) GetMovieCollection(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "invalid movie id", http.StatusBadRequest)
+		return
+	}
+
+	collection, err := a.service.GetMovieCollection(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if collection == nil {
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"details": "No collection found.",
+		})
+		return
+	}
+	json.NewEncoder(w).Encode(collection)
+}
+
 func (a *API) GetTrendingMovies(w http.ResponseWriter, r *http.Request) {
 	trending, err := a.service.GetTrendingMovies()
 	if err != nil {

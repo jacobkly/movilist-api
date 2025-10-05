@@ -47,6 +47,25 @@ func (s *Service) GetTvRecommendations(idType string, id int) (interface{}, erro
 	return recommendations, nil
 }
 
+func (s *Service) GetTvCollection(idType string, id int) (interface{}, error) {
+	if idType == "internal" {
+		return "internal ids have not yet been developed", nil
+	}
+
+	endpoint := fmt.Sprintf("/tv/%d?language=en-US", id)
+	tv, err := s.client.TMDBRequest("GET", endpoint, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	seasons, ok := tv["seasons"].([]interface{})
+	if !ok || seasons == nil {
+		return nil, nil
+	}
+
+	return seasons, nil
+}
+
 // by weekly status
 func (s *Service) GetTrendingTv() (interface{}, error) {
 	endpoint := "/trending/tv/week?language=en-US"

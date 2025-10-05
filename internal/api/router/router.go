@@ -26,6 +26,7 @@ func New() *chi.Mux {
 		r.Route("/movies", func(r chi.Router) {
 			r.Get("/{id}", movieAPI.GetMovieById)
 			r.Get("/{id}/recommendations", movieAPI.GetMovieRecommendations)
+			r.Get("/{id}/collection", movieAPI.GetMovieCollection)
 			r.Get("/trending", movieAPI.GetTrendingMovies)
 			r.Get("/upcoming", movieAPI.GetUpcomingMovies)
 			r.Get("/popular", movieAPI.GetPopularMovies)
@@ -38,6 +39,7 @@ func New() *chi.Mux {
 		r.Route("/tv", func(r chi.Router) {
 			r.Get("/{id}", tvAPI.GetTvById)
 			r.Get("/{id}/recommendations", tvAPI.GetTvRecommendations)
+			r.Get("/{id}/collection", tvAPI.GetTvCollection)
 			r.Get("/trending", tvAPI.GetTrendingTv)
 			r.Get("/upcoming", tvAPI.GetUpcomingTv)
 			r.Get("/popular", tvAPI.GetPopularTv)

@@ -1,3 +1,0 @@
-package collections
-
-func service() {}
