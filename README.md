@@ -31,4 +31,28 @@ Get a hosted version online as soon as possible. MoviList aims to make it easy t
 
 ---
 
+
+### Smaller Goals / Milestones
+
+- **Build Initial TMDb Client Layer** ✅
+  - ~~Return data directly from TMDb to the client.~~
+- **Design Initial Database** ✅
+  - ~~Tables include: movies, TV series/seasons, recommendations, collections, tracking, etc.~~
+- **Develop DB Layer**
+  - Implement the service layer of the API for inserting and querying the database.
+- **Implement API Authentication Middleware**
+  - Two methods of entry: Bearer Token (normal use) and API Key (admin use)
+- **Refine Database Design**
+  - Create space-efficient tables (fix suboptimal column types from the initial design).
+  - Add activity-tracking tables.
+  - Include additional smaller tables to reduce direct TMDb API calls (e.g., genres, production info).
+- **Build Redis Caching Layer**
+  - Adjust below caching strategy as needed with further research.
+  - Initially cache trending/upcoming/popular/top-rated items directly from TMDb.
+  - Cache individual movie/TV data selectively based on popularity.
+- **Deployment**
+  - Host the API on Heroku.
+
+---
+
 Stay tuned for updates!
