@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/go-chi/chi/v5"
+	chimiddleware "github.com/go-chi/chi/v5/middleware"
 
 	"movilist-api/internal/api/middleware"
 	"movilist-api/internal/api/resource/health"
@@ -18,6 +19,9 @@ type Services struct {
 
 func New(services Services) *chi.Mux {
 	r := chi.NewRouter()
+
+	r.Use(chimiddleware.RequestID)
+	r.Use(middleware.LoggerMiddleware)
 	r.Use(middleware.StatsMiddleware)
 
 	r.Get("/health", health.Get)
