@@ -2,6 +2,8 @@ package movies
 
 import (
 	"encoding/json"
+	"movilist-api/internal/api/middleware"
+	"movilist-api/internal/api/response"
 	"net/http"
 	"strconv"
 
@@ -20,24 +22,25 @@ func (a *API) GetMovieById(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
+		response.WriteError(w, http.StatusBadRequest, "invalid id")
 		return
 	}
 
 	idType := r.URL.Query().Get("id_type")
 	if idType == "" {
-		http.Error(w, "id_type is required (tmdb | media)", http.StatusBadRequest)
+		response.WriteError(w, http.StatusBadRequest, "id_type is required (tmdb | media)")
 		return
 	}
 
 	movie, err := a.service.GetMovieById(r.Context(), id, idType)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		response.WriteError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(movie)
+	stats := middleware.StatsFromContext(r.Context())
+
+	response.WriteSuccess(w, http.StatusOK, "v1", stats, movie)
 }
 
 func (a *API) GetMovieRecommendations(w http.ResponseWriter, r *http.Request) {
