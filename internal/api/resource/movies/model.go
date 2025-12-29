@@ -1,3 +1,0 @@
-package movies
-
-func model() {}

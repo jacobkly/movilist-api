@@ -20,13 +20,19 @@ func (a *API) GetMovieById(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid movie id", http.StatusBadRequest)
+		http.Error(w, "invalid id", http.StatusBadRequest)
 		return
 	}
 
-	movie, err := a.service.GetMovieById(id)
+	idType := r.URL.Query().Get("id_type")
+	if idType == "" {
+		http.Error(w, "id_type is required (tmdb | media)", http.StatusBadRequest)
+		return
+	}
+
+	movie, err := a.service.GetMovieById(r.Context(), id, idType)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

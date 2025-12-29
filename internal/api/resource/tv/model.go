@@ -1,3 +1,0 @@
-package tv
-
-func model() {}

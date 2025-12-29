@@ -1,26 +1,72 @@
 package movies
 
 import (
+	"context"
 	"fmt"
+
+	"movilist-api/internal/api/utils"
+	"movilist-api/internal/db"
 	"movilist-api/pkg/tmdb"
 )
 
 type Service struct {
 	client *tmdb.Client
+	repo   *db.MovieRepository
 }
 
-func NewService(client *tmdb.Client) *Service {
-	return &Service{client: client}
+func NewService(client *tmdb.Client, repo *db.MovieRepository) *Service {
+	return &Service{
+		client: client,
+		repo:   repo,
+	}
 }
 
-func (s *Service) GetMovieById(id int) (interface{}, error) {
-	endpoint := fmt.Sprintf("/movie/%d?language=en-US", id)
-	movie, err := s.client.TMDBRequest("GET", endpoint, nil)
+func (s *Service) GetMovieById(ctx context.Context, id int, idType string) (*db.Movie, error) {
+	var movieID int
+
+	switch idType {
+	case "tmdb":
+		movieID = id
+
+	case "media":
+		var err error
+		movieID, err = s.repo.GetMovieIDByMediaID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		if movieID == 0 {
+			return nil, fmt.Errorf("media not found")
+		}
+
+	default:
+		return nil, fmt.Errorf("invalid id_type")
+	}
+
+	movie, err := s.repo.GetByTMDBID(ctx, movieID)
+	if err != nil {
+		return nil, err
+	}
+	if movie != nil {
+		return movie, nil
+	}
+
+	raw, err := s.client.TMDBRequest(
+		"GET",
+		fmt.Sprintf("/movie/%d?language=en-US", movieID),
+		nil,
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	return movie, nil
+	normalized := utils.NormalizeTMDBMovie(raw)
+	if err := s.repo.Insert(ctx, normalized); err != nil {
+		return nil, err
+	}
+
+	_ = s.repo.EnsureMediaIndex(ctx, movieID)
+
+	return normalized, nil
 }
 
 func (s *Service) GetMovieRecommendations(id int) (interface{}, error) {

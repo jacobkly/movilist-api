@@ -6,7 +6,12 @@ import (
 	"net/http"
 
 	"movilist-api/config"
+	"movilist-api/internal/api/resource/movies"
+	"movilist-api/internal/api/resource/search"
+	"movilist-api/internal/api/resource/tv"
 	"movilist-api/internal/api/router"
+	"movilist-api/internal/db"
+	"movilist-api/pkg/tmdb"
 )
 
 //  @title          MoviList API
@@ -23,18 +28,37 @@ import (
 // @host           localhost:8080
 // @BasePath       /v1
 func main() {
-	c := config.New()
-	r := router.New()
-	s := &http.Server{
-		Addr:         fmt.Sprintf(":%d", c.Server.Port),
-		Handler:      r,
-		ReadTimeout:  c.Server.TimeoutRead,
-		WriteTimeout: c.Server.TimeoutWrite,
-		IdleTimeout:  c.Server.TimeoutIdle,
+	cfg := config.New()
+
+	dbConn, err := db.New(cfg.DB)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	log.Println("Starting server " + s.Addr)
-	if err := s.ListenAndServe(); err != nil && nil != http.ErrServerClosed {
-		log.Fatal("Server startup failed")
+	tmdbClient := tmdb.NewClient(cfg.TMDB.APIKey)
+
+	movieRepo := db.NewMovieRepository(dbConn)
+
+	movieService := movies.NewService(tmdbClient, movieRepo)
+	tvService := tv.NewService(tmdbClient)
+	searchService := search.NewService(tmdbClient)
+
+	r := router.New(router.Services{
+		Movies: movieService,
+		TV:     tvService,
+		Search: searchService,
+	})
+
+	srv := &http.Server{
+		Addr:         fmt.Sprintf(":%d", cfg.Server.Port),
+		Handler:      r,
+		ReadTimeout:  cfg.Server.TimeoutRead,
+		WriteTimeout: cfg.Server.TimeoutWrite,
+		IdleTimeout:  cfg.Server.TimeoutIdle,
+	}
+
+	log.Println("Starting server on", srv.Addr)
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal("server startup failed:", err)
 	}
 }
