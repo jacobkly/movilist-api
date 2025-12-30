@@ -87,3 +87,44 @@ func NormalizeTMDBMovie(raw map[string]interface{}) *db.Movie {
 		VoteCount:           intVal("vote_count"),
 	}
 }
+
+func NormalizeTMDBMovieCollection(
+	raw map[string]interface{},
+	collectionID int,
+) []db.MovieCollection {
+
+	parts, ok := raw["parts"].([]interface{})
+	if !ok {
+		return nil
+	}
+
+	var result []db.MovieCollection
+
+	for i, p := range parts {
+		m := p.(map[string]interface{})
+
+		var poster *string
+		if v, ok := m["poster_path"].(string); ok {
+			poster = &v
+		}
+
+		var vote *float64
+		if v, ok := m["vote_average"].(float64); ok {
+			vv := v
+			vote = &vv
+		}
+
+		pos := i + 1
+
+		result = append(result, db.MovieCollection{
+			CollectionID: collectionID,
+			MovieID:      int(m["id"].(float64)),
+			Name:         m["title"].(string),
+			PosterPath:   poster,
+			VoteAverage:  vote,
+			Position:     &pos,
+		})
+	}
+
+	return result
+}

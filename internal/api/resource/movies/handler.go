@@ -66,24 +66,34 @@ func (a *API) GetMovieCollection(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		http.Error(w, "invalid movie id", http.StatusBadRequest)
+		response.WriteError(w, http.StatusBadRequest, "invalid movie id")
 		return
 	}
 
-	collection, err := a.service.GetMovieCollection(id)
+	collections, err := a.service.GetMovieCollection(r.Context(), id)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		response.WriteError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if collection == nil {
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"details": "No collection found.",
-		})
+	if len(collections) == 0 {
+		response.WriteSuccess(
+			w,
+			http.StatusOK,
+			"v1",
+			middleware.StatsFromContext(r.Context()),
+			map[string]string{"details": "No collection found"},
+		)
 		return
 	}
-	json.NewEncoder(w).Encode(collection)
+
+	response.WriteSuccess(
+		w,
+		http.StatusOK,
+		"v1",
+		middleware.StatsFromContext(r.Context()),
+		collections,
+	)
 }
 
 func (a *API) GetTrendingMovies(w http.ResponseWriter, r *http.Request) {

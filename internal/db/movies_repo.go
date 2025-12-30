@@ -39,6 +39,16 @@ type Movie struct {
 	UpdatedAt           time.Time        `db:"updated_at" json:"updated_at"`
 }
 
+type MovieCollection struct {
+	CollectionID int       `db:"collection_id" json:"collection_id"`
+	MovieID      int       `db:"movie_id" json:"movie_id"`
+	Name         string    `db:"name" json:"name"`
+	PosterPath   *string   `db:"poster_path" json:"poster_path"`
+	VoteAverage  *float64  `db:"vote_average" json:"vote_average"`
+	Position     *int      `db:"position" json:"position"`
+	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+}
+
 type MovieRepository struct {
 	db *sqlx.DB
 }
@@ -78,7 +88,7 @@ func (r *MovieRepository) GetMovieIDByMediaID(ctx context.Context, mediaID int) 
 	return movieID, nil
 }
 
-func (r *MovieRepository) Insert(ctx context.Context, movie *Movie) error {
+func (r *MovieRepository) InsertMovie(ctx context.Context, movie *Movie) error {
 	_, err := r.db.NamedExecContext(ctx, `
 		insert into movies (
 			movie_id, adult, backdrop_path, belongs_to_collection,
@@ -108,6 +118,79 @@ func (r *MovieRepository) EnsureMediaIndex(ctx context.Context, movieID int) err
 		values ($1, 'movie')
 		on conflict (id, season_number, media_type) do nothing
 	`, movieID)
+
+	return err
+}
+
+func (r *MovieRepository) GetCollectionIDByMovieID(ctx context.Context, movieID int) (int, error) {
+
+	var collectionID int
+
+	err := r.db.GetContext(ctx, &collectionID, `
+		select collection_id
+		from movie_collections
+		where movie_id = $1
+		limit 1
+	`, movieID)
+
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	return collectionID, nil
+}
+
+func (r *MovieRepository) GetCollectionByCollectionID(
+	ctx context.Context,
+	collectionID int,
+) ([]MovieCollection, error) {
+
+	var movies []MovieCollection
+
+	err := r.db.SelectContext(ctx, &movies, `
+		select *
+		from movie_collections
+		where collection_id = $1
+		order by position asc nulls last
+	`, collectionID)
+
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	return movies, err
+}
+
+func (r *MovieRepository) InsertMovieCollectionBatch(
+	ctx context.Context,
+	entries []MovieCollection,
+) error {
+
+	if len(entries) == 0 {
+		return nil
+	}
+
+	_, err := r.db.NamedExecContext(ctx, `
+		insert into movie_collections (
+			collection_id,
+			movie_id,
+			name,
+			poster_path,
+			vote_average,
+			position
+		)
+		values (
+			:collection_id,
+			:movie_id,
+			:name,
+			:poster_path,
+			:vote_average,
+			:position
+		)
+		on conflict do nothing
+	`, entries)
 
 	return err
 }
