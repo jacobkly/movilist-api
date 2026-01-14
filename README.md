@@ -22,8 +22,7 @@ This repository (`movilist-api`) contains the backend REST API, built with Go. T
 
 ## Hosting Plans
 
-- **Backend (Development):** Local self-tunneling (e.g., zrok.io)
-- **Backend (Production):** Heroku
+- **Backend (Early Production):** Singular Azure VM Deployment (backend/frontend behind Nginx proxy)
 
 ## Project Goal
 
