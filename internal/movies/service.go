@@ -3,25 +3,50 @@ package movies
 import (
 	"context"
 	"fmt"
-
-	"movilist-api/internal/api/utils"
-	"movilist-api/internal/db"
-	"movilist-api/pkg/tmdb"
 )
 
-type Service struct {
-	client *tmdb.Client
-	repo   *db.MovieRepository
+// TMDBClient is the external data boundary for the movies service.
+// The service only needs "something that can make TMDB requests", so it
+// depends on this small behavior contract instead of a concrete client type.
+//
+// In production, `internal/platform/tmdb.Client` satisfies this interface.
+// In tests, a fake implementation can be passed in to avoid real HTTP calls.
+type TMDBClient interface {
+	TMDBRequest(method, endpoint string, body interface{}) (map[string]interface{}, error)
 }
 
-func NewService(client *tmdb.Client, repo *db.MovieRepository) *Service {
+// MovieRepository is the persistence boundary for the movies service.
+// It describes only the repository operations that the service actually uses.
+//
+// Keeping this interface in the consumer package is idiomatic Go: the service
+// defines the dependency shape it needs, and the concrete repository simply
+// satisfies that contract.
+type MovieRepository interface {
+	GetByTMDBID(ctx context.Context, tmdbID int) (*Movie, error)
+	GetMovieIDByMediaID(ctx context.Context, mediaID int) (int, error)
+	InsertMovie(ctx context.Context, movie *Movie) error
+	EnsureMediaIndex(ctx context.Context, movieID int) error
+	GetCollectionIDByMovieID(ctx context.Context, movieID int) (int, error)
+	GetCollectionByCollectionID(ctx context.Context, collectionID int) ([]MovieCollection, error)
+	InsertMovieCollectionBatch(ctx context.Context, entries []MovieCollection) error
+}
+
+type Service struct {
+	client TMDBClient
+	repo   MovieRepository
+}
+
+// NewService wires the movies service to its external boundaries.
+// Accepting interfaces here keeps the service easy to test and lets the
+// concrete TMDB/DB implementations change without rewriting service logic.
+func NewService(client TMDBClient, repo MovieRepository) *Service {
 	return &Service{
 		client: client,
 		repo:   repo,
 	}
 }
 
-func (s *Service) GetMovieById(ctx context.Context, id int, idType string) (*db.Movie, error) {
+func (s *Service) GetMovieById(ctx context.Context, id int, idType string) (*Movie, error) {
 	var movieID int
 
 	switch idType {
@@ -59,7 +84,7 @@ func (s *Service) GetMovieById(ctx context.Context, id int, idType string) (*db.
 		return nil, err
 	}
 
-	normalized := utils.NormalizeTMDBMovie(raw)
+	normalized := NormalizeTMDBMovie(raw)
 	if err := s.repo.InsertMovie(ctx, normalized); err != nil {
 		return nil, err
 	}
@@ -82,7 +107,7 @@ func (s *Service) GetMovieRecommendations(id int) (interface{}, error) {
 func (s *Service) GetMovieCollection(
 	ctx context.Context,
 	movieID int,
-) ([]db.MovieCollection, error) {
+) ([]MovieCollection, error) {
 	collectionID, err := s.repo.GetCollectionIDByMovieID(ctx, movieID)
 	if err != nil {
 		return nil, err
@@ -117,14 +142,13 @@ func (s *Service) GetMovieCollection(
 		return nil, err
 	}
 
-	collection := utils.NormalizeTMDBMovieCollection(rawCollection, collectionID)
+	collection := NormalizeTMDBMovieCollection(rawCollection, collectionID)
 
 	_ = s.repo.InsertMovieCollectionBatch(ctx, collection)
 
 	return collection, nil
 }
 
-// by weekly status
 func (s *Service) GetTrendingMovies() (interface{}, error) {
 	endpoint := "/trending/movie/week?language=en-US"
 	trending, err := s.client.TMDBRequest("GET", endpoint, nil)
@@ -145,7 +169,6 @@ func (s *Service) GetUpcomingMovies() (interface{}, error) {
 	return upcoming, nil
 }
 
-// by popularity
 func (s *Service) GetPopularMovies() (interface{}, error) {
 	endpoint := "/movie/popular?language=en-US&page=1"
 	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
@@ -156,7 +179,6 @@ func (s *Service) GetPopularMovies() (interface{}, error) {
 	return upcoming, nil
 }
 
-// by average score
 func (s *Service) GetTopRatedMovies() (interface{}, error) {
 	endpoint := "/movie/top_rated?language=en-US&page=1"
 	upcoming, err := s.client.TMDBRequest("GET", endpoint, nil)
@@ -172,7 +194,7 @@ func (s *Service) GetMovieList(listType string) (interface{}, error) {
 
 	switch listType {
 	case "trending":
-		endpoint = "/trending/movie/week?language=en-US" // by weekly status
+		endpoint = "/trending/movie/week?language=en-US"
 	case "upcoming":
 		endpoint = "/movie/upcoming?language=en-US&page=1"
 	case "popular":

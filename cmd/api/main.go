@@ -6,12 +6,12 @@ import (
 	"net/http"
 
 	"movilist-api/config"
-	"movilist-api/internal/api/resource/movies"
-	"movilist-api/internal/api/resource/search"
-	"movilist-api/internal/api/resource/tv"
-	"movilist-api/internal/api/router"
-	"movilist-api/internal/db"
-	"movilist-api/pkg/tmdb"
+	"movilist-api/internal/movies"
+	"movilist-api/internal/platform/db"
+	"movilist-api/internal/platform/http/router"
+	"movilist-api/internal/platform/tmdb"
+	"movilist-api/internal/search"
+	"movilist-api/internal/tv"
 )
 
 //  @title          MoviList API
@@ -37,7 +37,7 @@ func main() {
 
 	tmdbClient := tmdb.NewClient(cfg.TMDB.APIKey)
 
-	movieRepo := db.NewMovieRepository(dbConn)
+	movieRepo := movies.NewRepository(dbConn)
 
 	movieService := movies.NewService(tmdbClient, movieRepo)
 	tvService := tv.NewService(tmdbClient)

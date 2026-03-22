@@ -44,12 +44,6 @@ func LoggerMiddleware(next http.Handler) http.Handler {
 			r.UserAgent(),
 		)
 
-		// DEV ONLY — DO NOT ENABLE IN PROD
-		// log.Printf("[HEADERS] %v", r.Header)
-
-		// DEV ONLY — body logging is dangerous
-		// log.Printf("[REQUEST BODY] %s", body)
-
 		next.ServeHTTP(rw, r)
 
 		log.Printf(

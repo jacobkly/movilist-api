@@ -1,8 +1,10 @@
 package search
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"movilist-api/internal/platform/http/middleware"
+	"movilist-api/internal/platform/http/response"
 )
 
 type API struct {
@@ -16,15 +18,23 @@ func NewAPI(service *Service) *API {
 func (a *API) GetSearchResult(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
 	searchType := queryParams.Get("type")
-	// TODO: can do enum check for the search type
 	query := queryParams.Get("query")
-
-	searchResult, err := a.service.GetSearchResult(searchType, query)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if query == "" {
+		response.WriteError(w, http.StatusBadRequest, "query is required")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(searchResult)
+	searchResult, err := a.service.GetSearchResult(searchType, query)
+	if err != nil {
+		response.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	response.WriteSuccess(
+		w,
+		http.StatusOK,
+		"v1",
+		middleware.StatsFromContext(r.Context()),
+		searchResult,
+	)
 }

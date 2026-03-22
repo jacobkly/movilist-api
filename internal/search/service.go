@@ -2,15 +2,23 @@ package search
 
 import (
 	"fmt"
-	"movilist-api/pkg/tmdb"
 	"net/url"
 )
 
-type Service struct {
-	client *tmdb.Client
+// TMDBClient is the upstream boundary for search. Search does not care about
+// the concrete transport implementation; it only needs a component that can
+// execute TMDB requests.
+type TMDBClient interface {
+	TMDBRequest(method, endpoint string, body interface{}) (map[string]interface{}, error)
 }
 
-func NewService(client *tmdb.Client) *Service {
+type Service struct {
+	client TMDBClient
+}
+
+// NewService wires search to the TMDB boundary through a small interface so
+// the service can be tested without real network calls.
+func NewService(client TMDBClient) *Service {
 	return &Service{client: client}
 }
 

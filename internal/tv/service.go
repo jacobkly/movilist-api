@@ -2,24 +2,30 @@ package tv
 
 import (
 	"fmt"
-	"movilist-api/pkg/tmdb"
 )
 
-type Service struct {
-	client *tmdb.Client
+// TMDBClient is the only external dependency the TV service currently has.
+// Defining the interface here keeps the service coupled to behavior, not to
+// one specific HTTP client implementation.
+type TMDBClient interface {
+	TMDBRequest(method, endpoint string, body interface{}) (map[string]interface{}, error)
 }
 
-func NewService(client *tmdb.Client) *Service {
+type Service struct {
+	client TMDBClient
+}
+
+// NewService accepts any TMDB-capable client. In production this is the real
+// TMDB client; in tests it can be a small fake.
+func NewService(client TMDBClient) *Service {
 	return &Service{client: client}
 }
 
-// 0 fetches the entire tv show data, while others get exact season data
 func (s *Service) GetTvById(idType string, id int, seasonNum int) (interface{}, error) {
 	if idType == "internal" {
 		return "internal ids have not yet been developed", nil
 	}
 
-	// external
 	endpoint := fmt.Sprintf("/tv/%d?language=en-US", id)
 	if seasonNum > 0 {
 		endpoint = fmt.Sprintf("/tv/%d/season/%d?language=en-US", id, seasonNum)
@@ -71,7 +77,7 @@ func (s *Service) GetTvList(listType string) (interface{}, error) {
 
 	switch listType {
 	case "trending":
-		endpoint = "/trending/tv/week?language=en-US" // by weekly status
+		endpoint = "/trending/tv/week?language=en-US"
 	case "upcoming":
 		endpoint = "/tv/on_the_air?language=en-US&page=1"
 	case "popular":

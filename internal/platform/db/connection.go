@@ -26,7 +26,6 @@ func New(cfg config.ConfDB) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	// production defaults
 	db.SetMaxOpenConns(10)
 	db.SetMaxIdleConns(5)
 	db.SetConnMaxLifetime(30 * time.Minute)

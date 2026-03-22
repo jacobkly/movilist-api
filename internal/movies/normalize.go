@@ -1,13 +1,11 @@
-package utils
+package movies
 
 import (
 	"encoding/json"
 	"time"
-
-	"movilist-api/internal/db"
 )
 
-func NormalizeTMDBMovie(raw map[string]interface{}) *db.Movie {
+func NormalizeTMDBMovie(raw map[string]interface{}) *Movie {
 	j := func(v interface{}) *json.RawMessage {
 		if v == nil {
 			return nil
@@ -59,7 +57,7 @@ func NormalizeTMDBMovie(raw map[string]interface{}) *db.Movie {
 		return &t
 	}
 
-	return &db.Movie{
+	return &Movie{
 		MovieID:             intVal("id"),
 		Adult:               boolVal("adult"),
 		BackdropPath:        str("backdrop_path"),
@@ -91,14 +89,13 @@ func NormalizeTMDBMovie(raw map[string]interface{}) *db.Movie {
 func NormalizeTMDBMovieCollection(
 	raw map[string]interface{},
 	collectionID int,
-) []db.MovieCollection {
-
+) []MovieCollection {
 	parts, ok := raw["parts"].([]interface{})
 	if !ok {
 		return nil
 	}
 
-	var result []db.MovieCollection
+	var result []MovieCollection
 
 	for i, p := range parts {
 		m := p.(map[string]interface{})
@@ -116,7 +113,7 @@ func NormalizeTMDBMovieCollection(
 
 		pos := i + 1
 
-		result = append(result, db.MovieCollection{
+		result = append(result, MovieCollection{
 			CollectionID: collectionID,
 			MovieID:      int(m["id"].(float64)),
 			Name:         m["title"].(string),
