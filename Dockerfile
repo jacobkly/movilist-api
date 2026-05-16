@@ -1,6 +1,6 @@
 FROM golang:alpine
 
-WORKDIR /movilist-api
+WORKDIR /klyvi-api
 COPY go.mod go.sum ./
 
 COPY . .
@@ -8,5 +8,5 @@ COPY . .
 RUN go build -o ./bin/api ./cmd/api \
     && go build -o ./bin/migrate ./cmd/migrate
 
-CMD ["/movilist-api/bin/api"]
+CMD ["/klyvi-api/bin/api"]
 EXPOSE 8080

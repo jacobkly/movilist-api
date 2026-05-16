@@ -3,8 +3,8 @@ package health
 import (
 	"net/http"
 
-	"movilist-api/internal/platform/http/middleware"
-	"movilist-api/internal/platform/http/response"
+	"klyvi-api/internal/platform/http/middleware"
+	"klyvi-api/internal/platform/http/response"
 )
 
 func Get(w http.ResponseWriter, r *http.Request) {

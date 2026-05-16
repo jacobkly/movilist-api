@@ -5,16 +5,16 @@ import (
 	"log"
 	"net/http"
 
-	"movilist-api/config"
-	"movilist-api/internal/movies"
-	"movilist-api/internal/platform/db"
-	"movilist-api/internal/platform/http/router"
-	"movilist-api/internal/platform/tmdb"
-	"movilist-api/internal/search"
-	"movilist-api/internal/tv"
+	"klyvi-api/config"
+	"klyvi-api/internal/movies"
+	"klyvi-api/internal/platform/db"
+	"klyvi-api/internal/platform/http/router"
+	"klyvi-api/internal/platform/tmdb"
+	"klyvi-api/internal/search"
+	"klyvi-api/internal/tv"
 )
 
-//  @title          MoviList API
+//  @title          Klyvi API
 //  @version        1.0
 //  @description    A RESTful API for managing movies, shows, and user media lists.
 //                  Inspired by AniList, but focused on film and TV.

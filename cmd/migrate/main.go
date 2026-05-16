@@ -10,7 +10,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/pressly/goose/v3"
 
-	"movilist-api/config"
+	"klyvi-api/config"
 )
 
 const (

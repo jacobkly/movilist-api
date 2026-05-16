@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"movilist-api/config"
+	"klyvi-api/config"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"

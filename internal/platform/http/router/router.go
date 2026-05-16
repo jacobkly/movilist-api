@@ -4,11 +4,11 @@ import (
 	"github.com/go-chi/chi/v5"
 	chimiddleware "github.com/go-chi/chi/v5/middleware"
 
-	"movilist-api/internal/health"
-	"movilist-api/internal/movies"
-	"movilist-api/internal/platform/http/middleware"
-	"movilist-api/internal/search"
-	"movilist-api/internal/tv"
+	"klyvi-api/internal/health"
+	"klyvi-api/internal/movies"
+	"klyvi-api/internal/platform/http/middleware"
+	"klyvi-api/internal/search"
+	"klyvi-api/internal/tv"
 )
 
 type Services struct {

@@ -5,4 +5,4 @@ services:
     env_file: .env.dev
     ports:
       - "8080:8080"
-    command: [ "sh", "-c", "/movilist-api/bin/migrate up && /movilist-api/bin/api" ]
+    command: [ "sh", "-c", "/klyvi-api/bin/migrate up && /klyvi-api/bin/api" ]
