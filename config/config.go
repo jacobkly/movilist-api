@@ -32,7 +32,7 @@ type ConfDB struct {
 }
 
 type ConfTMDB struct {
-	APIKey string `env:"TMDB_API_KEY,requred"`
+	APIKey string `env:"TMDB_API_KEY,required"`
 }
 
 func New() *Conf {
